@@ -3,9 +3,11 @@ export interface MemoryItem {
   title: string;
   subtitle?: string;
   date: string;
-  year: '2023' | '2024' | '2025' | '2026';
-  category: 'Tréning' | 'Súťaž' | 'Backstage' | 'Spomienka' | 'Míľnik';
+  year: '2023' | '2024' | '2025' | '2026' | string;
+  category: string;
   imageUrl: string;
+  videoUrl?: string;
+  isVideo?: boolean;
   aspectRatio?: 'portrait' | 'landscape' | 'square';
   caption: string;
   story?: string;

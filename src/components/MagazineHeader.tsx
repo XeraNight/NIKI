@@ -9,11 +9,10 @@ export const MagazineHeader: React.FC = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const navLinks = [
-    { label: '01. Fotky', href: '#gallery' },
-    { label: '02. 3 Roky', href: '#timeline' },
-    { label: '03. Polaroids', href: '#polaroids' },
-    { label: '04. Videá', href: '#videos' },
-    { label: '05. List', href: '#letter', highlight: true },
+    { label: '01. Glóbus', href: '#archive' },
+    { label: '02. Fotky', href: '#photos' },
+    { label: '03. Videá', href: '#videos' },
+    { label: '04. List 18', href: '#letter', highlight: true },
   ];
 
   const handleNavClick = (href: string) => {

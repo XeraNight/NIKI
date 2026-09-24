@@ -112,13 +112,23 @@ export const LightboxModal: React.FC<LightboxModalProps> = ({
           className="relative max-w-4xl w-full max-h-[90vh] bg-[#101014] border border-white/10 rounded-2xl overflow-hidden shadow-2xl flex flex-col md:flex-row"
           onClick={(e) => e.stopPropagation()}
         >
-          {/* Image Container */}
+          {/* Media Container (Image or Video) */}
           <div className="md:w-3/5 bg-black flex items-center justify-center relative min-h-[300px] max-h-[60vh] md:max-h-[85vh]">
-            <img
-              src={item.imageUrl}
-              alt={item.title}
-              className="max-h-[60vh] md:max-h-[85vh] w-full object-contain select-none"
-            />
+            {item.isVideo && item.videoUrl ? (
+              <video
+                src={item.videoUrl}
+                controls
+                autoPlay
+                playsInline
+                className="max-h-[60vh] md:max-h-[85vh] w-full object-contain"
+              />
+            ) : (
+              <img
+                src={item.imageUrl}
+                alt={item.title}
+                className="max-h-[60vh] md:max-h-[85vh] w-full object-contain select-none"
+              />
+            )}
             {item.tag && (
               <span className="absolute top-3 left-3 px-2.5 py-1 text-xs font-medium tracking-widest uppercase bg-black/60 backdrop-blur-md text-amber-300 border border-amber-500/30 rounded-full">
                 {item.tag}
