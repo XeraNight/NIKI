@@ -1,9 +1,9 @@
 'use client';
 
 import React, { useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import confetti from 'canvas-confetti';
-import { Sparkles, PartyPopper, RotateCcw } from 'lucide-react';
+import { PartyPopper, RotateCcw } from 'lucide-react';
 import { SITE_CONFIG } from '@/data/memories';
 
 export const RealisticEnvelope: React.FC = () => {
@@ -58,7 +58,6 @@ export const RealisticEnvelope: React.FC = () => {
     if (!isOpen) {
       setIsOpen(true);
       fireConfetti();
-      // After flap opens (600ms), slide the letter fully up
       setTimeout(() => {
         setLetterExtracted(true);
       }, 700);
@@ -76,22 +75,9 @@ export const RealisticEnvelope: React.FC = () => {
   const letter = SITE_CONFIG.birthdayLetter;
 
   return (
-    <section className="py-24 px-4 sm:px-6 relative overflow-hidden flex flex-col items-center justify-center border-t border-white/[0.08]">
+    <section className="py-24 px-4 sm:px-6 relative overflow-hidden flex flex-col items-center justify-center border-t border-white/[0.06]">
       {/* Background warm celebratory atmosphere */}
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[550px] h-[550px] bg-amber-500/[0.07] blur-[160px] rounded-full pointer-events-none" />
-
-      {/* Header */}
-      <div className="text-center max-w-xl mx-auto mb-12 relative z-10">
-        <span className="text-[11px] font-mono tracking-[0.3em] uppercase text-amber-400 block mb-2">
-          OSOBNÝ ODKAZ K 18-TKE
-        </span>
-        <h2 className="font-serif text-3xl sm:text-5xl font-light text-white mb-2">
-          Zapečatený List
-        </h2>
-        <p className="text-xs sm:text-sm font-sans text-neutral-400">
-          Klikni na voskovú pečať a otvor si narodeninový list.
-        </p>
-      </div>
 
       {/* Envelope Stage */}
       <div className="relative w-full max-w-[340px] sm:max-w-[440px] min-h-[460px] flex items-center justify-center perspective-[1200px]">
@@ -111,7 +97,6 @@ export const RealisticEnvelope: React.FC = () => {
             className="absolute inset-0 rounded-2xl bg-[#141318] border border-amber-500/20 overflow-hidden"
             style={{ zIndex: 1 }}
           >
-            {/* Silk interior lining texture */}
             <div className="absolute inset-0 bg-[radial-gradient(#d4af3715_1px,transparent_1px)] bg-[size:12px_12px]" />
           </div>
 
@@ -135,14 +120,13 @@ export const RealisticEnvelope: React.FC = () => {
                 : '0 4px 12px rgba(0,0,0,0.3)',
             }}
           >
-            {/* Subtle vintage parchment paper texture */}
             <div className="absolute inset-0 bg-[radial-gradient(#00000008_1px,transparent_1px)] bg-[size:10px_10px] pointer-events-none" />
 
             {/* Letter Content */}
             <div className="relative z-10">
               <div className="flex items-center justify-between border-b border-[#e2d6c1] pb-2 mb-3">
                 <span className="text-[10px] font-mono uppercase tracking-[0.2em] text-[#8c6b32] font-semibold">
-                  NIKI // 18. NARODENINY
+                  NIKI // 18
                 </span>
                 <span className="font-serif text-xs italic text-[#705528]">
                   2023 — 2026
@@ -194,12 +178,11 @@ export const RealisticEnvelope: React.FC = () => {
             </div>
           </motion.div>
 
-          {/* 3. Front Envelope Pocket (Left, Right, Bottom triangular folds) */}
+          {/* 3. Front Envelope Pocket */}
           <div
             className="absolute inset-0 pointer-events-none rounded-2xl overflow-hidden"
             style={{ zIndex: 10 }}
           >
-            {/* Left triangle fold */}
             <div
               className="absolute inset-y-0 left-0 w-1/2 bg-[#1b1a22]"
               style={{
@@ -207,7 +190,6 @@ export const RealisticEnvelope: React.FC = () => {
                 boxShadow: 'inset -2px 0 10px rgba(0,0,0,0.5)',
               }}
             />
-            {/* Right triangle fold */}
             <div
               className="absolute inset-y-0 right-0 w-1/2 bg-[#191820]"
               style={{
@@ -215,7 +197,6 @@ export const RealisticEnvelope: React.FC = () => {
                 boxShadow: 'inset 2px 0 10px rgba(0,0,0,0.5)',
               }}
             />
-            {/* Bottom triangle fold */}
             <div
               className="absolute inset-x-0 bottom-0 h-3/5 bg-gradient-to-t from-[#141318] to-[#1e1c26]"
               style={{
@@ -225,7 +206,7 @@ export const RealisticEnvelope: React.FC = () => {
             />
           </div>
 
-          {/* 4. Top Flap with Wax Seal (Flips Open realistically via 3D rotateX) */}
+          {/* 4. Top Flap with Wax Seal */}
           <motion.div
             initial={false}
             animate={{
@@ -241,7 +222,6 @@ export const RealisticEnvelope: React.FC = () => {
               transformStyle: 'preserve-3d',
             }}
           >
-            {/* Outside of the top triangular flap */}
             <div
               className="absolute inset-0 bg-gradient-to-b from-[#24222e] to-[#1c1a24] rounded-t-2xl border-t border-amber-500/30 flex items-center justify-center backface-hidden"
               style={{
@@ -249,7 +229,6 @@ export const RealisticEnvelope: React.FC = () => {
                 boxShadow: '0 8px 25px rgba(0,0,0,0.6)',
               }}
             >
-              {/* Wax Seal 18 on the outside */}
               <div className="absolute bottom-2 left-1/2 -translate-x-1/2">
                 <motion.div
                   whileHover={{ scale: 1.1 }}
@@ -268,7 +247,6 @@ export const RealisticEnvelope: React.FC = () => {
               </div>
             </div>
 
-            {/* Inside lining of the flap (seen when flipped open) */}
             <div
               className="absolute inset-0 bg-[#16151c] rounded-t-2xl rotate-x-180 backface-hidden"
               style={{
@@ -278,18 +256,6 @@ export const RealisticEnvelope: React.FC = () => {
           </motion.div>
         </div>
       </div>
-
-      {/* Helper text under envelope */}
-      {!isOpen && (
-        <motion.p
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          className="mt-6 text-xs text-amber-300/80 font-mono tracking-widest uppercase flex items-center gap-1.5 animate-pulse"
-        >
-          <Sparkles className="w-3.5 h-3.5 text-amber-400" />
-          Klikni na pečať pre otvorenie listu
-        </motion.p>
-      )}
     </section>
   );
 };
