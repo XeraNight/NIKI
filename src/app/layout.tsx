@@ -49,12 +49,6 @@ export default function RootLayout({
       className={`${playfair.variable} ${plusJakarta.variable} ${caveat.variable} dark scroll-smooth`}
     >
       <body className="min-h-screen bg-[#070709] text-[#f3f3f5] font-sans antialiased selection:bg-[#d4af37]/30 selection:text-[#f8ecd5] overflow-x-hidden">
-        {/* Ambient subtle editorial glow with breathing motion */}
-        <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden">
-          <div className="absolute top-[-10%] left-1/2 -translate-x-1/2 w-[800px] h-[500px] bg-gradient-to-b from-amber-500/10 via-amber-700/5 to-transparent blur-[120px] rounded-full opacity-60 animate-[ambientDrift_18s_ease-in-out_infinite]" />
-          <div className="absolute bottom-[-10%] right-[-5%] w-[600px] h-[500px] bg-gradient-to-t from-rose-900/10 via-amber-900/5 to-transparent blur-[140px] rounded-full opacity-50 animate-[ambientDriftAlt_22s_ease-in-out_infinite]" />
-        </div>
-        
         {/* Main Content */}
         <div className="relative z-10 flex flex-col min-h-screen">
           {children}

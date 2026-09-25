@@ -8,7 +8,6 @@ import { Footer } from '@/components/Footer';
 import { MusicBar } from '@/components/MusicBar';
 import { LightboxModal } from '@/components/LightboxModal';
 import { AnimatedHeroWish } from '@/components/AnimatedHeroWish';
-import { AmbientBacklight } from '@/components/AmbientBacklight';
 
 import {
   CAROUSEL_MEMORIES,
@@ -45,9 +44,6 @@ export default function HomePage() {
 
       {/* 3D Globe of Photos & Videos Section */}
       <section className="pt-14 sm:pt-20 pb-10 sm:pb-14 px-4 flex flex-col items-center justify-center relative overflow-hidden">
-        {/* Subtle breathing ambient backlight & bokeh behind the 3D globe */}
-        <AmbientBacklight />
-
         {/* Section Heading: Memory transition text */}
         <div className="w-full max-w-2xl mx-auto text-center mb-8 sm:mb-12 px-4 z-10">
           <p className="font-serif italic text-xl sm:text-2xl md:text-3xl text-neutral-200/90 font-light leading-relaxed tracking-wide">
