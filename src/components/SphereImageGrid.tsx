@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { X, Play } from 'lucide-react';
+import { X } from 'lucide-react';
 
 export interface Position3D {
   x: number;
@@ -482,16 +482,7 @@ export const SphereImageGrid: React.FC<SphereImageGridProps> = ({
             )}
             
             {/* Subtle glow / border overlay */}
-            <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent pointer-events-none" />
-
-            {/* Video Indicator Icon if item is a video */}
-            {image.isVideo && (
-              <div className="absolute top-2 right-2 flex items-center justify-center pointer-events-none">
-                <div className="w-5 h-5 rounded-full bg-black/60 backdrop-blur-sm border border-amber-400/40 text-amber-300 flex items-center justify-center shadow-md">
-                  <Play className="w-2.5 h-2.5 fill-amber-300 ml-0.5" />
-                </div>
-              </div>
-            )}
+            <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent pointer-events-none" />
           </div>
         </div>
       );
