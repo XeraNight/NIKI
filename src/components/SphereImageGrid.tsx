@@ -31,6 +31,7 @@ export interface ImageData {
   description?: string;
   isVideo?: boolean;
   videoUrl?: string;
+  videoLoopUrl?: string;
   category?: string;
   date?: string;
 }
@@ -98,16 +99,16 @@ export const SphereImageGrid: React.FC<SphereImageGridProps> = ({
   dragSensitivity = 0.55,
   momentumDecay = 0.95,
   maxRotationSpeed = 4,
-  baseImageScale = 0.17,
+  baseImageScale = 0.25,
   hoverScale = 1.25,
   perspective = 1100,
   autoRotate = true,
-  autoRotateSpeed = 0.25,
+  autoRotateSpeed = 0.22,
   className = '',
   onSelectImage,
 }) => {
   const [isMounted, setIsMounted] = useState<boolean>(false);
-  const [containerSize, setContainerSize] = useState<number>(customSize || 520);
+  const [containerSize, setContainerSize] = useState<number>(customSize || 560);
   const [rotation, setRotation] = useState<RotationState>({ x: 12, y: 25, z: 0 });
   const [velocity, setVelocity] = useState<VelocityState>({ x: 0, y: 0 });
   const [isDragging, setIsDragging] = useState<boolean>(false);
@@ -128,13 +129,13 @@ export const SphereImageGrid: React.FC<SphereImageGridProps> = ({
       }
       const w = window.innerWidth;
       if (w < 480) {
-        setContainerSize(Math.min(340, w - 32));
+        setContainerSize(Math.min(360, w - 24));
       } else if (w < 768) {
-        setContainerSize(440);
+        setContainerSize(480);
       } else if (w < 1024) {
-        setContainerSize(500);
-      } else {
         setContainerSize(560);
+      } else {
+        setContainerSize(640);
       }
     };
 
@@ -143,7 +144,8 @@ export const SphereImageGrid: React.FC<SphereImageGridProps> = ({
     return () => window.removeEventListener('resize', updateSize);
   }, [customSize]);
 
-  const actualSphereRadius = sphereRadius || containerSize * 0.48;
+  // Tighter radius + larger base image size makes the globe dense and cohesive
+  const actualSphereRadius = sphereRadius || containerSize * 0.40;
   const baseImageSize = containerSize * baseImageScale;
 
   const generateSpherePositions = useCallback((): SphericalPosition[] => {
@@ -458,21 +460,35 @@ export const SphereImageGrid: React.FC<SphereImageGridProps> = ({
           }}
         >
           <div className="relative w-full h-full rounded-2xl overflow-hidden shadow-2xl border border-white/20 bg-neutral-900 group">
-            <img
-              src={image.src}
-              alt={image.alt}
-              className="w-full h-full object-cover pointer-events-none group-hover:scale-105 transition-transform duration-300"
-              draggable={false}
-              loading={index < 5 ? 'eager' : 'lazy'}
-            />
+            {image.isVideo && (image.videoLoopUrl || image.videoUrl) ? (
+              <video
+                src={image.videoLoopUrl || image.videoUrl}
+                poster={image.src}
+                autoPlay
+                muted
+                loop
+                playsInline
+                preload="metadata"
+                className="w-full h-full object-cover pointer-events-none"
+              />
+            ) : (
+              <img
+                src={image.src}
+                alt={image.alt}
+                className="w-full h-full object-cover pointer-events-none group-hover:scale-105 transition-transform duration-300"
+                draggable={false}
+                loading={index < 8 ? 'eager' : 'lazy'}
+              />
+            )}
+            
             {/* Subtle glow / border overlay */}
             <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent pointer-events-none" />
 
             {/* Video Indicator Icon if item is a video */}
             {image.isVideo && (
-              <div className="absolute inset-0 flex items-center justify-center">
-                <div className="w-7 h-7 rounded-full bg-amber-400 text-black flex items-center justify-center shadow-lg">
-                  <Play className="w-3.5 h-3.5 fill-black ml-0.5" />
+              <div className="absolute top-2 right-2 flex items-center justify-center pointer-events-none">
+                <div className="w-5 h-5 rounded-full bg-black/60 backdrop-blur-sm border border-amber-400/40 text-amber-300 flex items-center justify-center shadow-md">
+                  <Play className="w-2.5 h-2.5 fill-amber-300 ml-0.5" />
                 </div>
               </div>
             )}

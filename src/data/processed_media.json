@@ -1,0 +1,338 @@
+{
+  "photos": [
+    {
+      "id": "photo-01",
+      "src": "/media/photos/photo_01.jpg",
+      "alt": "Tane\u010dn\u00e1 spomienka 1",
+      "isVideo": false,
+      "category": "Fotka",
+      "date": "2023 - 2026"
+    },
+    {
+      "id": "photo-02",
+      "src": "/media/photos/photo_02.jpg",
+      "alt": "Tane\u010dn\u00e1 spomienka 2",
+      "isVideo": false,
+      "category": "Fotka",
+      "date": "2023 - 2026"
+    },
+    {
+      "id": "photo-03",
+      "src": "/media/photos/photo_03.jpg",
+      "alt": "Tane\u010dn\u00e1 spomienka 3",
+      "isVideo": false,
+      "category": "Fotka",
+      "date": "2023 - 2026"
+    },
+    {
+      "id": "photo-04",
+      "src": "/media/photos/photo_04.jpg",
+      "alt": "Tane\u010dn\u00e1 spomienka 4",
+      "isVideo": false,
+      "category": "Fotka",
+      "date": "2023 - 2026"
+    },
+    {
+      "id": "photo-05",
+      "src": "/media/photos/photo_05.jpg",
+      "alt": "Tane\u010dn\u00e1 spomienka 5",
+      "isVideo": false,
+      "category": "Fotka",
+      "date": "2023 - 2026"
+    },
+    {
+      "id": "photo-06",
+      "src": "/media/photos/photo_06.jpg",
+      "alt": "Tane\u010dn\u00e1 spomienka 6",
+      "isVideo": false,
+      "category": "Fotka",
+      "date": "2023 - 2026"
+    },
+    {
+      "id": "photo-07",
+      "src": "/media/photos/photo_07.jpg",
+      "alt": "Tane\u010dn\u00e1 spomienka 7",
+      "isVideo": false,
+      "category": "Fotka",
+      "date": "2023 - 2026"
+    },
+    {
+      "id": "photo-08",
+      "src": "/media/photos/photo_08.jpg",
+      "alt": "Tane\u010dn\u00e1 spomienka 8",
+      "isVideo": false,
+      "category": "Fotka",
+      "date": "2023 - 2026"
+    },
+    {
+      "id": "photo-09",
+      "src": "/media/photos/photo_09.jpg",
+      "alt": "Tane\u010dn\u00e1 spomienka 9",
+      "isVideo": false,
+      "category": "Fotka",
+      "date": "2023 - 2026"
+    },
+    {
+      "id": "photo-10",
+      "src": "/media/photos/photo_10.jpg",
+      "alt": "Tane\u010dn\u00e1 spomienka 10",
+      "isVideo": false,
+      "category": "Fotka",
+      "date": "2023 - 2026"
+    },
+    {
+      "id": "photo-11",
+      "src": "/media/photos/photo_11.jpg",
+      "alt": "Tane\u010dn\u00e1 spomienka 11",
+      "isVideo": false,
+      "category": "Fotka",
+      "date": "2023 - 2026"
+    },
+    {
+      "id": "photo-12",
+      "src": "/media/photos/photo_12.jpg",
+      "alt": "Tane\u010dn\u00e1 spomienka 12",
+      "isVideo": false,
+      "category": "Fotka",
+      "date": "2023 - 2026"
+    },
+    {
+      "id": "photo-13",
+      "src": "/media/photos/photo_13.jpg",
+      "alt": "Tane\u010dn\u00e1 spomienka 13",
+      "isVideo": false,
+      "category": "Fotka",
+      "date": "2023 - 2026"
+    },
+    {
+      "id": "photo-14",
+      "src": "/media/photos/photo_14.jpg",
+      "alt": "Tane\u010dn\u00e1 spomienka 14",
+      "isVideo": false,
+      "category": "Fotka",
+      "date": "2023 - 2026"
+    },
+    {
+      "id": "photo-15",
+      "src": "/media/photos/photo_15.jpg",
+      "alt": "Tane\u010dn\u00e1 spomienka 15",
+      "isVideo": false,
+      "category": "Fotka",
+      "date": "2023 - 2026"
+    },
+    {
+      "id": "photo-16",
+      "src": "/media/photos/photo_16.jpg",
+      "alt": "Tane\u010dn\u00e1 spomienka 16",
+      "isVideo": false,
+      "category": "Fotka",
+      "date": "2023 - 2026"
+    },
+    {
+      "id": "photo-17",
+      "src": "/media/photos/photo_17.jpg",
+      "alt": "Tane\u010dn\u00e1 spomienka 17",
+      "isVideo": false,
+      "category": "Fotka",
+      "date": "2023 - 2026"
+    },
+    {
+      "id": "photo-18",
+      "src": "/media/photos/photo_18.jpg",
+      "alt": "Tane\u010dn\u00e1 spomienka 18",
+      "isVideo": false,
+      "category": "Fotka",
+      "date": "2023 - 2026"
+    },
+    {
+      "id": "photo-19",
+      "src": "/media/photos/photo_19.jpg",
+      "alt": "Tane\u010dn\u00e1 spomienka 19",
+      "isVideo": false,
+      "category": "Fotka",
+      "date": "2023 - 2026"
+    },
+    {
+      "id": "photo-20",
+      "src": "/media/photos/photo_20.jpg",
+      "alt": "Tane\u010dn\u00e1 spomienka 20",
+      "isVideo": false,
+      "category": "Fotka",
+      "date": "2023 - 2026"
+    },
+    {
+      "id": "photo-21",
+      "src": "/media/photos/photo_21.jpg",
+      "alt": "Tane\u010dn\u00e1 spomienka 21",
+      "isVideo": false,
+      "category": "Fotka",
+      "date": "2023 - 2026"
+    },
+    {
+      "id": "photo-22",
+      "src": "/media/photos/photo_22.jpg",
+      "alt": "Tane\u010dn\u00e1 spomienka 22",
+      "isVideo": false,
+      "category": "Fotka",
+      "date": "2023 - 2026"
+    },
+    {
+      "id": "photo-23",
+      "src": "/media/photos/photo_23.jpg",
+      "alt": "Tane\u010dn\u00e1 spomienka 23",
+      "isVideo": false,
+      "category": "Fotka",
+      "date": "2023 - 2026"
+    },
+    {
+      "id": "photo-24",
+      "src": "/media/photos/photo_24.jpg",
+      "alt": "Tane\u010dn\u00e1 spomienka 24",
+      "isVideo": false,
+      "category": "Fotka",
+      "date": "2023 - 2026"
+    },
+    {
+      "id": "photo-25",
+      "src": "/media/photos/photo_25.jpg",
+      "alt": "Tane\u010dn\u00e1 spomienka 25",
+      "isVideo": false,
+      "category": "Fotka",
+      "date": "2023 - 2026"
+    }
+  ],
+  "videos": [
+    {
+      "id": "video-01",
+      "src": "/media/photos/video_01_poster.jpg",
+      "videoUrl": "/media/videos/video_01.mp4",
+      "videoLoopUrl": "/media/videos/video_01.mp4",
+      "alt": "Tane\u010dn\u00e9 video 1",
+      "isVideo": true,
+      "category": "Video",
+      "date": "2023 - 2026",
+      "duration": 4.2,
+      "size_mb": 4.9
+    },
+    {
+      "id": "video-02",
+      "src": "/media/photos/video_02_poster.jpg",
+      "videoUrl": "/media/videos/video_02.mp4",
+      "videoLoopUrl": "/media/videos/video_02_loop.mp4",
+      "alt": "Tane\u010dn\u00e9 video 2",
+      "isVideo": true,
+      "category": "Video",
+      "date": "2023 - 2026",
+      "duration": 229.2,
+      "size_mb": 71.2
+    },
+    {
+      "id": "video-03",
+      "src": "/media/photos/video_03_poster.jpg",
+      "videoUrl": "/media/videos/video_03.mp4",
+      "videoLoopUrl": "/media/videos/video_03_loop.mp4",
+      "alt": "Tane\u010dn\u00e9 video 3",
+      "isVideo": true,
+      "category": "Video",
+      "date": "2023 - 2026",
+      "duration": 22.7,
+      "size_mb": 25.9
+    },
+    {
+      "id": "video-04",
+      "src": "/media/photos/video_04_poster.jpg",
+      "videoUrl": "/media/videos/video_04.mp4",
+      "videoLoopUrl": "/media/videos/video_04_loop.mp4",
+      "alt": "Tane\u010dn\u00e9 video 4",
+      "isVideo": true,
+      "category": "Video",
+      "date": "2023 - 2026",
+      "duration": 19.7,
+      "size_mb": 22.3
+    },
+    {
+      "id": "video-05",
+      "src": "/media/photos/video_05_poster.jpg",
+      "videoUrl": "/media/videos/video_05.mp4",
+      "videoLoopUrl": "/media/videos/video_05_loop.mp4",
+      "alt": "Tane\u010dn\u00e9 video 5",
+      "isVideo": true,
+      "category": "Video",
+      "date": "2023 - 2026",
+      "duration": 96.1,
+      "size_mb": 43.6
+    },
+    {
+      "id": "video-06",
+      "src": "/media/photos/video_06_poster.jpg",
+      "videoUrl": "/media/videos/video_06.mp4",
+      "videoLoopUrl": "/media/videos/video_06_loop.mp4",
+      "alt": "Tane\u010dn\u00e9 video 6",
+      "isVideo": true,
+      "category": "Video",
+      "date": "2023 - 2026",
+      "duration": 13.2,
+      "size_mb": 15.2
+    },
+    {
+      "id": "video-07",
+      "src": "/media/photos/video_07_poster.jpg",
+      "videoUrl": "/media/videos/video_07.mp4",
+      "videoLoopUrl": "/media/videos/video_07_loop.mp4",
+      "alt": "Tane\u010dn\u00e9 video 7",
+      "isVideo": true,
+      "category": "Video",
+      "date": "2023 - 2026",
+      "duration": 66.2,
+      "size_mb": 25.2
+    },
+    {
+      "id": "video-08",
+      "src": "/media/photos/video_08_poster.jpg",
+      "videoUrl": "/media/videos/video_08.mp4",
+      "videoLoopUrl": "/media/videos/video_08_loop.mp4",
+      "alt": "Tane\u010dn\u00e9 video 8",
+      "isVideo": true,
+      "category": "Video",
+      "date": "2023 - 2026",
+      "duration": 33.3,
+      "size_mb": 19.8
+    },
+    {
+      "id": "video-09",
+      "src": "/media/photos/video_09_poster.jpg",
+      "videoUrl": "/media/videos/video_09.mp4",
+      "videoLoopUrl": "/media/videos/video_09_loop.mp4",
+      "alt": "Tane\u010dn\u00e9 video 9",
+      "isVideo": true,
+      "category": "Video",
+      "date": "2023 - 2026",
+      "duration": 55.8,
+      "size_mb": 25.5
+    },
+    {
+      "id": "video-10",
+      "src": "/media/photos/video_10_poster.jpg",
+      "videoUrl": "/media/videos/video_10.mp4",
+      "videoLoopUrl": "/media/videos/video_10_loop.mp4",
+      "alt": "Tane\u010dn\u00e9 video 10",
+      "isVideo": true,
+      "category": "Video",
+      "date": "2023 - 2026",
+      "duration": 43.7,
+      "size_mb": 13.4
+    },
+    {
+      "id": "video-11",
+      "src": "/media/photos/video_11_poster.jpg",
+      "videoUrl": "/media/videos/video_11.mp4",
+      "videoLoopUrl": "/media/videos/video_11_loop.mp4",
+      "alt": "Tane\u010dn\u00e9 video 11",
+      "isVideo": true,
+      "category": "Video",
+      "date": "2023 - 2026",
+      "duration": 45.4,
+      "size_mb": 14.3
+    }
+  ]
+}
