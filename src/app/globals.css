@@ -84,3 +84,13 @@ body {
 .cursor-grab:active {
   cursor: grabbing;
 }
+
+@keyframes shimmerSweep {
+  0% {
+    transform: translateX(-120%);
+  }
+  50%, 100% {
+    transform: translateX(120%);
+  }
+}
+

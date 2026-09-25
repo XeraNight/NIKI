@@ -7,6 +7,7 @@ import { RealisticEnvelope } from '@/components/RealisticEnvelope';
 import { Footer } from '@/components/Footer';
 import { MusicBar } from '@/components/MusicBar';
 import { LightboxModal } from '@/components/LightboxModal';
+import { AnimatedHeroWish } from '@/components/AnimatedHeroWish';
 
 import {
   CAROUSEL_MEMORIES,
@@ -38,12 +39,8 @@ export default function HomePage() {
 
   return (
     <main className="min-h-screen bg-[#070709] text-white flex flex-col selection:bg-amber-400/30 selection:text-amber-200">
-      {/* Pure Minimalist Title Header */}
-      <header className="pt-16 sm:pt-20 pb-4 flex flex-col items-center justify-center text-center">
-        <h1 className="font-serif text-7xl sm:text-9xl md:text-[11rem] font-light tracking-tight text-white leading-none select-none">
-          Niki
-        </h1>
-      </header>
+      {/* Animated Hero Header: starts centered with "Niki", shifts left after 1s, and reveals the birthday wish */}
+      <AnimatedHeroWish />
 
       {/* 3D Globe of Photos & Videos with Visual Drag Indicator (No Text) */}
       <section className="py-6 sm:py-10 px-4 flex flex-col items-center justify-center relative overflow-hidden">
