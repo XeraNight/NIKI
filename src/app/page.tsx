@@ -3,8 +3,6 @@
 import React, { useState } from 'react';
 import { SphereImageGrid, ImageData } from '@/components/SphereImageGrid';
 import { DragIndicator } from '@/components/DragIndicator';
-import { RealisticEnvelope } from '@/components/RealisticEnvelope';
-import { Footer } from '@/components/Footer';
 import { MusicBar } from '@/components/MusicBar';
 import { LightboxModal } from '@/components/LightboxModal';
 import { AnimatedHeroWish } from '@/components/AnimatedHeroWish';
@@ -43,7 +41,7 @@ export default function HomePage() {
       <AnimatedHeroWish />
 
       {/* 3D Globe of Photos & Videos Section */}
-      <section className="pt-14 sm:pt-20 pb-10 sm:pb-14 px-4 flex flex-col items-center justify-center relative overflow-hidden">
+      <section className="pt-14 sm:pt-20 pb-20 sm:pb-28 px-4 flex flex-col items-center justify-center relative overflow-hidden">
         {/* Section Heading: Memory transition text */}
         <div className="w-full max-w-2xl mx-auto text-center mb-8 sm:mb-12 px-4 z-10">
           <p className="font-serif italic text-xl sm:text-2xl md:text-3xl text-neutral-200/90 font-light leading-relaxed tracking-wide">
@@ -67,12 +65,6 @@ export default function HomePage() {
           <DragIndicator />
         </div>
       </section>
-
-      {/* Realistic 3D Envelope with Wax Seal 18 & Emerging Letter (No Promo Text) */}
-      <RealisticEnvelope />
-
-      {/* Minimalist Colophon Footer */}
-      <Footer />
 
       {/* Floating Audio Soundtrack Player */}
       <MusicBar
