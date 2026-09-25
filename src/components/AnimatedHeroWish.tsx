@@ -1,184 +1,180 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { motion, Variants } from 'framer-motion';
-import { Sparkles } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 
-interface AnimatedHeroWishProps {
-  className?: string;
-}
-
-export const AnimatedHeroWish: React.FC<AnimatedHeroWishProps> = ({ className = '' }) => {
-  // Phase 1: 'center' (first 1 second, "Niki" centered like the original hero)
-  // Phase 2: 'shifted' (after 1000ms, shrinks & transitions to top-left, revealing the wish)
-  const [phase, setPhase] = useState<'center' | 'shifted'>('center');
+export const AnimatedHeroWish: React.FC = () => {
+  // Phase 1: 'center' (0 to 1s) - "Niki" in center on dark canvas
+  // Phase 2: 'paper' (1s+) - Cream paper appears and handwriting animates
+  const [phase, setPhase] = useState<'center' | 'paper'>('center');
 
   useEffect(() => {
     const timer = setTimeout(() => {
-      setPhase('shifted');
-    }, 1000); // exactly 1 second as requested
+      setPhase('paper');
+    }, 1000); // exactly 1 second
 
     return () => clearTimeout(timer);
   }, []);
 
-  // Sentence tokens configured for staggered progressive blooming
-  const tokens = [
-    { text: ', ', isGold: false },
-    { text: 'všetko ', isGold: false },
-    { text: 'najlepšie ', isGold: false },
-    { text: 'k ', isGold: false },
-    { text: 'tvojim ', isGold: false },
-    { text: '18.', isGold: true },
-    { text: 'narodeninám. ', isGold: false },
-    { text: 'Prajem ', isGold: false },
-    { text: 'ti, ', isGold: false },
-    { text: 'aby ', isGold: false },
-    { text: 'si ', isGold: false },
-    { text: 'bola ', isGold: false },
-    { text: 'zdravá, ', isGold: false },
-    { text: 'šťastná ', isGold: false },
-    { text: 'a ', isGold: false },
-    { text: 'aby ', isGold: false },
-    { text: 'si ', isGold: false },
-    { text: 'svoj ', isGold: false },
-    { text: 'životný ', isGold: false },
-    { text: 'príbeh ', isGold: false },
-    { text: 'písala ', isGold: false },
-    { text: 's ', isGold: false },
-    { text: 'eufóriou ', isGold: false },
-    { text: 'a ', isGold: false },
-    { text: 'veľkým ', isGold: false },
-    { text: 'úsmevom ', isGold: false },
-    { text: 'na ', isGold: false },
-    { text: 'tvári.', isGold: false },
+  // Words breakdown for progressive ink writing
+  const introWords = ['všetko', 'najlepšie', 'k', 'tvojim'];
+  const post18Words = ['narodeninám.'];
+  const wishWords = [
+    'Prajem', 'ti,', 'aby', 'si', 'bola', 'zdravá,', 'šťastná',
+    'a', 'aby', 'si', 'svoj', 'životný', 'príbeh', 'písala',
+    's', 'eufóriou', 'a', 'veľkým', 'úsmevom', 'na', 'tvári.'
   ];
 
-  const containerVariants: Variants = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: {
-        staggerChildren: 0.05,
-        delayChildren: 0.15,
-      },
-    },
-  };
-
-  const wordVariants: Variants = {
-    hidden: { opacity: 0, y: 12, filter: 'blur(4px)' },
-    visible: {
-      opacity: 1,
-      y: 0,
-      filter: 'blur(0px)',
-      transition: {
-        duration: 0.5,
-        ease: [0.25, 0.1, 0.25, 1],
-      },
-    },
-  };
-
   return (
-    <header className={`w-full max-w-5xl mx-auto px-4 sm:px-6 pt-12 sm:pt-16 pb-4 sm:pb-8 flex flex-col justify-center min-h-[180px] sm:min-h-[240px] transition-all duration-700 ${className}`}>
-      <div
-        className={`w-full flex flex-col transition-all duration-1000 ease-[cubic-bezier(0.22,1,0.36,1)] ${
-          phase === 'center'
-            ? 'items-center text-center'
-            : 'items-start text-left'
-        }`}
-      >
-        <div className="relative inline leading-snug">
-          {/* Main Name "Niki" */}
-          <motion.span
-            layout
-            transition={{
-              type: 'spring',
-              stiffness: 75,
-              damping: 18,
-              mass: 0.8,
-            }}
-            className={`font-serif tracking-tight select-none inline-block transition-all duration-1000 ${
-              phase === 'center'
-                ? 'text-7xl sm:text-9xl md:text-[11rem] font-light text-white leading-none'
-                : 'text-3xl sm:text-5xl md:text-6xl font-normal text-amber-200/90 leading-tight align-baseline mr-1 drop-shadow-[0_0_20px_rgba(251,191,36,0.25)]'
-            }`}
+    <div className="w-full max-w-4xl mx-auto px-4 sm:px-6 pt-12 sm:pt-16 pb-6 flex flex-col items-center justify-center min-h-[360px] sm:min-h-[440px] relative">
+      
+      {/* PHASE 1: Centered "Niki" on Dark Background (0 to 1.0s) */}
+      <AnimatePresence>
+        {phase === 'center' && (
+          <motion.div
+            key="center-name"
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.96, transition: { duration: 0.4 } }}
+            transition={{ duration: 0.6 }}
+            className="flex items-center justify-center text-center py-12"
           >
-            Niki
-          </motion.span>
+            <h1 className="font-serif text-7xl sm:text-9xl md:text-[11rem] font-light tracking-tight text-white leading-none select-none drop-shadow-[0_10px_30px_rgba(255,255,255,0.1)]">
+              Niki
+            </h1>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
-          {/* Progressive reveal of the wish sentence */}
-          {phase === 'shifted' && (
-            <motion.span
-              variants={containerVariants}
-              initial="hidden"
-              animate="visible"
-              className="font-serif text-xl sm:text-3xl md:text-4xl text-neutral-200/95 font-light leading-relaxed tracking-normal align-baseline"
+      {/* PHASE 2: Cream Paper Sheet with Handwritten Ink Letter (1.0s+) */}
+      {phase === 'paper' && (
+        <motion.div
+          key="paper-sheet"
+          initial={{ opacity: 0, y: 24, scale: 0.94 }}
+          animate={{ opacity: 1, y: 0, scale: 1 }}
+          transition={{
+            duration: 0.85,
+            ease: [0.16, 1, 0.3, 1],
+          }}
+          className="relative w-full max-w-2xl sm:max-w-3xl bg-[#FAF7EE] text-[#241F1A] rounded-xl sm:rounded-2xl p-6 sm:p-10 md:p-12 shadow-[0_25px_60px_-15px_rgba(0,0,0,0.85),0_0_0_1px_rgba(224,213,190,0.7)] overflow-hidden"
+          style={{
+            backgroundImage: `
+              radial-gradient(#e5dbc3 0.65px, transparent 0.65px),
+              linear-gradient(to bottom, #FAF7EE, #F5EFE0)
+            `,
+            backgroundSize: '16px 16px, 100% 100%',
+          }}
+        >
+          {/* Subtle paper grain & tactile stationery edge */}
+          <div className="absolute inset-0 border border-[#dfd4bd] rounded-xl sm:rounded-2xl pointer-events-none" />
+          <div className="absolute top-0 left-0 right-0 h-[3px] bg-gradient-to-r from-transparent via-[#d4af37]/40 to-transparent" />
+
+          {/* Letter Content */}
+          <div className="relative z-10 flex flex-col gap-4 sm:gap-6 font-handwriting leading-relaxed select-none">
+            
+            {/* Salutation: "Niki," */}
+            <motion.div
+              initial={{ opacity: 0, x: -8 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.6, delay: 0.2 }}
+              className="text-4xl sm:text-5xl md:text-6xl text-[#1E1A17] font-semibold tracking-wide"
             >
-              {tokens.map((token, idx) => {
-                if (token.isGold) {
-                  return (
-                    <motion.span
-                      key={idx}
-                      variants={{
-                        hidden: { scale: 0.3, opacity: 0, y: 15, rotate: -6 },
-                        visible: {
-                          scale: 1,
-                          opacity: 1,
-                          y: 0,
-                          rotate: 0,
-                          transition: {
-                            type: 'spring',
-                            stiffness: 220,
-                            damping: 12,
-                          },
-                        },
-                      }}
-                      className="relative inline-block mx-1.5 align-baseline font-serif font-bold text-3xl sm:text-5xl md:text-6xl"
-                    >
-                      {/* Pulsing multi-tone 24k gold gradient */}
-                      <span className="relative z-10 bg-gradient-to-b from-[#FFFBE6] via-[#FFD700] to-[#C99700] bg-clip-text text-transparent drop-shadow-[0_0_24px_rgba(255,215,0,0.7)] animate-pulse inline-block">
-                        18
-                      </span>
+              Niki,
+            </motion.div>
 
-                      {/* Continuous gold shimmer sweep */}
-                      <span className="absolute inset-0 bg-gradient-to-r from-transparent via-white/70 to-transparent bg-clip-text text-transparent pointer-events-none -translate-x-full animate-[shimmerSweep_2.6s_infinite]" />
+            {/* Line 1: "... všetko najlepšie k tvojim 18. narodeninám." */}
+            <div className="text-2xl sm:text-3xl md:text-4xl text-[#2B2520] flex flex-wrap items-baseline gap-x-2 gap-y-1">
+              {introWords.map((word, index) => (
+                <motion.span
+                  key={`intro-${index}`}
+                  initial={{ opacity: 0, y: 6, filter: 'blur(2px)' }}
+                  animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
+                  transition={{
+                    duration: 0.35,
+                    delay: 0.5 + index * 0.12,
+                    ease: 'easeOut',
+                  }}
+                  className="inline-block"
+                >
+                  {word}
+                </motion.span>
+              ))}
 
-                      {/* Golden Sparkle Star */}
-                      <motion.span
-                        initial={{ scale: 0, opacity: 0 }}
-                        animate={{
-                          scale: [0.7, 1.25, 0.7],
-                          opacity: [0.4, 1, 0.4],
-                          rotate: [0, 90, 180],
-                        }}
-                        transition={{
-                          duration: 2.4,
-                          repeat: Infinity,
-                          ease: 'easeInOut',
-                        }}
-                        className="absolute -top-3 -right-3 text-amber-300 pointer-events-none"
-                      >
-                        <Sparkles className="w-4 h-4 sm:w-5 sm:h-5 fill-amber-300 drop-shadow-[0_0_8px_#ffd700]" />
-                      </motion.span>
-                      <span className="text-neutral-200 font-light text-xl sm:text-3xl md:text-4xl">. </span>
-                    </motion.span>
-                  );
-                }
+              {/* Realistic Gold Leaf Foil Embossed "18." (No AI video-game glow) */}
+              <motion.span
+                initial={{ opacity: 0, scale: 0.7, y: 4 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                transition={{
+                  duration: 0.6,
+                  delay: 0.5 + introWords.length * 0.12 + 0.1,
+                  type: 'spring',
+                  stiffness: 180,
+                  damping: 15,
+                }}
+                className="relative inline-flex items-baseline mx-1 align-baseline font-serif font-black text-3xl sm:text-4xl md:text-5xl"
+              >
+                {/* Burnished Gold Leaf Gradient */}
+                <span
+                  className="relative z-10 bg-gradient-to-b from-[#dfba52] via-[#c59b27] to-[#8f660d] bg-clip-text text-transparent"
+                  style={{
+                    filter: 'drop-shadow(0 1px 1px rgba(255,255,255,0.85)) drop-shadow(0 1px 2px rgba(0,0,0,0.35))',
+                  }}
+                >
+                  18
+                </span>
 
-                return (
-                  <motion.span
-                    key={idx}
-                    variants={wordVariants}
-                    className="inline-block"
-                  >
-                    {token.text}&nbsp;
-                  </motion.span>
-                );
-              })}
-            </motion.span>
-          )}
-        </div>
-      </div>
-    </header>
+                {/* Subtle natural metallic sheen reflection */}
+                <span className="absolute inset-0 bg-gradient-to-r from-transparent via-white/50 to-transparent bg-clip-text text-transparent pointer-events-none -translate-x-full animate-[shimmerSweep_3s_infinite]" />
+                
+                <span className="font-handwriting text-2xl sm:text-3xl md:text-4xl text-[#2B2520] ml-0.5">.</span>
+              </motion.span>
+
+              {post18Words.map((word, index) => (
+                <motion.span
+                  key={`post-${index}`}
+                  initial={{ opacity: 0, y: 6, filter: 'blur(2px)' }}
+                  animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
+                  transition={{
+                    duration: 0.35,
+                    delay: 0.65 + (introWords.length + 1 + index) * 0.12,
+                    ease: 'easeOut',
+                  }}
+                  className="inline-block"
+                >
+                  {word}
+                </motion.span>
+              ))}
+            </div>
+
+            {/* Line 2: Heartfelt wish appearing naturally like handwriting */}
+            <div className="text-2xl sm:text-3xl md:text-4xl text-[#332C26] flex flex-wrap items-baseline gap-x-2 gap-y-1 pt-1 sm:pt-2">
+              {wishWords.map((word, index) => (
+                <motion.span
+                  key={`wish-${index}`}
+                  initial={{ opacity: 0, y: 5, filter: 'blur(1.5px)' }}
+                  animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
+                  transition={{
+                    duration: 0.32,
+                    delay: 1.4 + index * 0.08,
+                    ease: 'easeOut',
+                  }}
+                  className="inline-block"
+                >
+                  {word}
+                </motion.span>
+              ))}
+            </div>
+
+          </div>
+
+          {/* Discreet authentic corner watermark / stationery accent */}
+          <div className="absolute bottom-3 right-4 sm:bottom-4 sm:right-6 text-[10px] sm:text-xs font-serif uppercase tracking-[0.25em] text-[#b3a589]/60 select-none">
+            2023 – 2026 // 18.
+          </div>
+        </motion.div>
+      )}
+
+    </div>
   );
 };
 

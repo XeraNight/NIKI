@@ -42,8 +42,16 @@ export default function HomePage() {
       {/* Animated Hero Header: starts centered with "Niki", shifts left after 1s, and reveals the birthday wish */}
       <AnimatedHeroWish />
 
-      {/* 3D Globe of Photos & Videos with Visual Drag Indicator (No Text) */}
-      <section className="py-6 sm:py-10 px-4 flex flex-col items-center justify-center relative overflow-hidden">
+      {/* 3D Globe of Photos & Videos Section */}
+      <section className="pt-14 sm:pt-20 pb-10 sm:pb-14 px-4 flex flex-col items-center justify-center relative overflow-hidden">
+        {/* Section Heading: Memory transition text */}
+        <div className="w-full max-w-2xl mx-auto text-center mb-8 sm:mb-12 px-4">
+          <p className="font-serif italic text-xl sm:text-2xl md:text-3xl text-neutral-200/90 font-light leading-relaxed tracking-wide">
+            „A aby som nezabudol, pár videí a fotiek na spomienku, čo všetko si zažila za tie 3 roky, čo ťa poznám.“
+          </p>
+          <div className="w-12 h-[1px] bg-gradient-to-r from-transparent via-amber-400/40 to-transparent mx-auto mt-5" />
+        </div>
+
         <div className="flex items-center justify-center w-full">
           <SphereImageGrid
             images={SPHERE_GALLERY_ITEMS}
@@ -54,8 +62,8 @@ export default function HomePage() {
           />
         </div>
 
-        {/* 21st.dev inspired Animated Drag & 360 Rotation Gesture Indicator */}
-        <div className="mt-8">
+        {/* Minimal Hand Swipe Gesture Indicator */}
+        <div className="mt-6">
           <DragIndicator />
         </div>
       </section>
