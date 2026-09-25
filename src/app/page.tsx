@@ -3,7 +3,6 @@
 import React, { useState } from 'react';
 import { SphereImageGrid, ImageData } from '@/components/SphereImageGrid';
 import { DragIndicator } from '@/components/DragIndicator';
-import { MusicBar } from '@/components/MusicBar';
 import { LightboxModal } from '@/components/LightboxModal';
 import { AnimatedHeroWish } from '@/components/AnimatedHeroWish';
 
@@ -15,11 +14,6 @@ import { MemoryItem } from '@/types';
 
 export default function HomePage() {
   const [selectedItem, setSelectedItem] = useState<MemoryItem | null>(null);
-  const [isPlayingMusic, setIsPlayingMusic] = useState(false);
-
-  const toggleMusic = () => {
-    setIsPlayingMusic((prev) => !prev);
-  };
 
   const handleSelectSphereItem = (img: ImageData) => {
     setSelectedItem({
@@ -65,12 +59,6 @@ export default function HomePage() {
           <DragIndicator />
         </div>
       </section>
-
-      {/* Floating Audio Soundtrack Player */}
-      <MusicBar
-        isPlaying={isPlayingMusic}
-        onTogglePlay={toggleMusic}
-      />
 
       {/* Fullscreen HD Lightbox Modal (For Photos & Videos) */}
       <LightboxModal
