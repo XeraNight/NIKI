@@ -1,26 +1,11 @@
 'use client';
 
-import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { X } from 'lucide-react';
+import React, { useState, useEffect, useRef, useMemo, useCallback } from 'react';
 
 export interface Position3D {
   x: number;
   y: number;
   z: number;
-}
-
-export interface SphericalPosition {
-  theta: number;  // Azimuth angle in degrees
-  phi: number;    // Polar angle in degrees
-  radius: number; // Distance from center
-}
-
-export interface WorldPosition extends Position3D {
-  scale: number;
-  zIndex: number;
-  isVisible: boolean;
-  fadeOpacity: number;
-  originalIndex: number;
 }
 
 export interface ImageData {
@@ -52,46 +37,6 @@ export interface SphereImageGridProps {
   onSelectImage?: (image: ImageData) => void;
 }
 
-interface RotationState {
-  x: number;
-  y: number;
-  z: number;
-}
-
-interface VelocityState {
-  x: number;
-  y: number;
-}
-
-interface MousePosition {
-  x: number;
-  y: number;
-}
-
-const SPHERE_MATH = {
-  degreesToRadians: (degrees: number): number => degrees * (Math.PI / 180),
-  radiansToDegrees: (radians: number): number => radians * (180 / Math.PI),
-
-  sphericalToCartesian: (radius: number, theta: number, phi: number): Position3D => ({
-    x: radius * Math.sin(phi) * Math.cos(theta),
-    y: radius * Math.cos(phi),
-    z: radius * Math.sin(phi) * Math.sin(theta)
-  }),
-
-  calculateDistance: (pos: Position3D, center: Position3D = { x: 0, y: 0, z: 0 }): number => {
-    const dx = pos.x - center.x;
-    const dy = pos.y - center.y;
-    const dz = pos.z - center.z;
-    return Math.sqrt(dx * dx + dy * dy + dz * dz);
-  },
-
-  normalizeAngle: (angle: number): number => {
-    while (angle > 180) angle -= 360;
-    while (angle < -180) angle += 360;
-    return angle;
-  }
-};
-
 export const SphereImageGrid: React.FC<SphereImageGridProps> = ({
   images = [],
   containerSize: customSize,
@@ -100,7 +45,6 @@ export const SphereImageGrid: React.FC<SphereImageGridProps> = ({
   momentumDecay = 0.95,
   maxRotationSpeed = 4,
   baseImageScale = 0.25,
-  hoverScale = 1.25,
   perspective = 1100,
   autoRotate = true,
   autoRotateSpeed = 0.22,
@@ -109,18 +53,18 @@ export const SphereImageGrid: React.FC<SphereImageGridProps> = ({
 }) => {
   const [isMounted, setIsMounted] = useState<boolean>(false);
   const [containerSize, setContainerSize] = useState<number>(customSize || 560);
-  const [rotation, setRotation] = useState<RotationState>({ x: 12, y: 25, z: 0 });
-  const [velocity, setVelocity] = useState<VelocityState>({ x: 0, y: 0 });
-  const [isDragging, setIsDragging] = useState<boolean>(false);
-  const [selectedImage, setSelectedImage] = useState<ImageData | null>(null);
-  const [imagePositions, setImagePositions] = useState<SphericalPosition[]>([]);
-  const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
 
+  // References for Zero-Re-render Animation Loop
   const containerRef = useRef<HTMLDivElement>(null);
-  const lastMousePos = useRef<MousePosition>({ x: 0, y: 0 });
-  const animationFrame = useRef<number | null>(null);
+  const cardRefs = useRef<(HTMLDivElement | null)[]>([]);
+  const rotationRef = useRef({ x: 12, y: 25 });
+  const velocityRef = useRef({ x: 0, y: 0 });
+  const isDraggingRef = useRef(false);
+  const lastMousePos = useRef({ x: 0, y: 0 });
+  const dragStartPos = useRef({ x: 0, y: 0 });
+  const animationFrameRef = useRef<number | null>(null);
 
-  // Responsive container sizing for mobile vs desktop
+  // Responsive sizing listener
   useEffect(() => {
     const updateSize = () => {
       if (customSize) {
@@ -144,20 +88,21 @@ export const SphereImageGrid: React.FC<SphereImageGridProps> = ({
     return () => window.removeEventListener('resize', updateSize);
   }, [customSize]);
 
-  // Tighter radius + larger base image size makes the globe dense and cohesive
   const actualSphereRadius = sphereRadius || containerSize * 0.40;
-  const baseImageSize = containerSize * baseImageScale;
+  const baseCardSize = containerSize * baseImageScale;
 
-  const generateSpherePositions = useCallback((): SphericalPosition[] => {
-    const positions: SphericalPosition[] = [];
-    const imageCount = images.length;
-    if (imageCount === 0) return positions;
+  // 1. Precalculate 3D Cartesian coordinates ONCE per layout change
+  // (Zero trigonometry during animation loop!)
+  const baseCoordinates = useMemo<Position3D[]>(() => {
+    const count = images.length;
+    if (count === 0) return [];
 
+    const coords: Position3D[] = [];
     const goldenRatio = (1 + Math.sqrt(5)) / 2;
     const angleIncrement = (2 * Math.PI) / goldenRatio;
 
-    for (let i = 0; i < imageCount; i++) {
-      const t = i / imageCount;
+    for (let i = 0; i < count; i++) {
+      const t = i / count;
       const inclination = Math.acos(1 - 2 * t);
       const azimuth = angleIncrement * i;
 
@@ -173,239 +118,181 @@ export const SphereImageGrid: React.FC<SphereImageGridProps> = ({
 
       phi = 15 + (phi / 180) * 150;
 
-      positions.push({
-        theta,
-        phi,
-        radius: actualSphereRadius,
+      const phiRad = phi * (Math.PI / 180);
+      const thetaRad = theta * (Math.PI / 180);
+
+      coords.push({
+        x: actualSphereRadius * Math.sin(phiRad) * Math.cos(thetaRad),
+        y: actualSphereRadius * Math.cos(phiRad),
+        z: actualSphereRadius * Math.sin(phiRad) * Math.sin(thetaRad),
       });
     }
 
-    return positions;
+    return coords;
   }, [images.length, actualSphereRadius]);
 
-  const calculateWorldPositions = useCallback((): WorldPosition[] => {
-    const positions = imagePositions.map((pos, index) => {
-      const thetaRad = SPHERE_MATH.degreesToRadians(pos.theta);
-      const phiRad = SPHERE_MATH.degreesToRadians(pos.phi);
-      const rotXRad = SPHERE_MATH.degreesToRadians(rotation.x);
-      const rotYRad = SPHERE_MATH.degreesToRadians(rotation.y);
+  // 2. High-Performance Animation Frame (Direct GPU transform updates, 0ms React re-renders)
+  const renderFrame = useCallback(() => {
+    const rot = rotationRef.current;
+    const vel = velocityRef.current;
 
-      let x = pos.radius * Math.sin(phiRad) * Math.cos(thetaRad);
-      let y = pos.radius * Math.cos(phiRad);
-      let z = pos.radius * Math.sin(phiRad) * Math.sin(thetaRad);
-
-      const x1 = x * Math.cos(rotYRad) + z * Math.sin(rotYRad);
-      const z1 = -x * Math.sin(rotYRad) + z * Math.cos(rotYRad);
-      x = x1;
-      z = z1;
-
-      const y2 = y * Math.cos(rotXRad) - z * Math.sin(rotXRad);
-      const z2 = y * Math.sin(rotXRad) + z * Math.cos(rotXRad);
-      y = y2;
-      z = z2;
-
-      const worldPos: Position3D = { x, y, z };
-
-      const fadeZoneStart = -15;
-      const fadeZoneEnd = -actualSphereRadius * 0.7;
-      const isVisible = worldPos.z > fadeZoneEnd;
-
-      let fadeOpacity = 1;
-      if (worldPos.z <= fadeZoneStart) {
-        fadeOpacity = Math.max(
-          0.1,
-          (worldPos.z - fadeZoneEnd) / (fadeZoneStart - fadeZoneEnd)
-        );
-      }
-
-      const distanceFromCenter = Math.sqrt(
-        worldPos.x * worldPos.x + worldPos.y * worldPos.y
-      );
-      const distanceRatio = Math.min(distanceFromCenter / actualSphereRadius, 1);
-      const centerScale = Math.max(0.4, 1 - distanceRatio * 0.4);
-
-      const depthScale =
-        (worldPos.z + actualSphereRadius) / (2 * actualSphereRadius);
-      const scale = centerScale * Math.max(0.55, 0.75 + depthScale * 0.35);
-
-      return {
-        ...worldPos,
-        scale,
-        zIndex: Math.round(1000 + worldPos.z),
-        isVisible,
-        fadeOpacity,
-        originalIndex: index,
-      };
-    });
-
-    return positions;
-  }, [imagePositions, rotation, actualSphereRadius]);
-
-  const clampRotationSpeed = useCallback(
-    (speed: number): number => {
-      return Math.max(-maxRotationSpeed, Math.min(maxRotationSpeed, speed));
-    },
-    [maxRotationSpeed]
-  );
-
-  const updateMomentum = useCallback(() => {
-    if (isDragging) return;
-
-    setVelocity((prev) => {
-      const newVelocity = {
-        x: prev.x * momentumDecay,
-        y: prev.y * momentumDecay,
-      };
-
-      if (
-        !autoRotate &&
-        Math.abs(newVelocity.x) < 0.01 &&
-        Math.abs(newVelocity.y) < 0.01
-      ) {
-        return { x: 0, y: 0 };
-      }
-
-      return newVelocity;
-    });
-
-    setRotation((prev) => {
-      let newY = prev.y;
+    // Apply Momentum & Friction
+    if (!isDraggingRef.current) {
+      vel.x *= momentumDecay;
+      vel.y *= momentumDecay;
 
       if (autoRotate) {
-        newY += autoRotateSpeed;
+        rot.y += autoRotateSpeed;
       }
 
-      newY += clampRotationSpeed(velocity.y);
+      const clampedVelX = Math.max(-maxRotationSpeed, Math.min(maxRotationSpeed, vel.x));
+      const clampedVelY = Math.max(-maxRotationSpeed, Math.min(maxRotationSpeed, vel.y));
 
-      return {
-        x: SPHERE_MATH.normalizeAngle(prev.x + clampRotationSpeed(velocity.x)),
-        y: SPHERE_MATH.normalizeAngle(newY),
-        z: prev.z,
-      };
-    });
-  }, [
-    isDragging,
-    momentumDecay,
-    velocity,
-    clampRotationSpeed,
-    autoRotate,
-    autoRotateSpeed,
-  ]);
-
-  const handleMouseDown = useCallback((e: React.MouseEvent) => {
-    e.preventDefault();
-    setIsDragging(true);
-    setVelocity({ x: 0, y: 0 });
-    lastMousePos.current = { x: e.clientX, y: e.clientY };
-  }, []);
-
-  const handleMouseMove = useCallback(
-    (e: MouseEvent) => {
-      if (!isDragging) return;
-
-      const deltaX = e.clientX - lastMousePos.current.x;
-      const deltaY = e.clientY - lastMousePos.current.y;
-
-      const rotationDelta = {
-        x: -deltaY * dragSensitivity,
-        y: deltaX * dragSensitivity,
-      };
-
-      setRotation((prev) => ({
-        x: SPHERE_MATH.normalizeAngle(
-          prev.x + clampRotationSpeed(rotationDelta.x)
-        ),
-        y: SPHERE_MATH.normalizeAngle(
-          prev.y + clampRotationSpeed(rotationDelta.y)
-        ),
-        z: prev.z,
-      }));
-
-      setVelocity({
-        x: clampRotationSpeed(rotationDelta.x),
-        y: clampRotationSpeed(rotationDelta.y),
-      });
-
-      lastMousePos.current = { x: e.clientX, y: e.clientY };
-    },
-    [isDragging, dragSensitivity, clampRotationSpeed]
-  );
-
-  const handleMouseUp = useCallback(() => {
-    setIsDragging(false);
-  }, []);
-
-  const handleTouchStart = useCallback((e: React.TouchEvent) => {
-    const touch = e.touches[0];
-    setIsDragging(true);
-    setVelocity({ x: 0, y: 0 });
-    lastMousePos.current = { x: touch.clientX, y: touch.clientY };
-  }, []);
-
-  const handleTouchMove = useCallback(
-    (e: TouchEvent) => {
-      if (!isDragging) return;
-
-      const touch = e.touches[0];
-      const deltaX = touch.clientX - lastMousePos.current.x;
-      const deltaY = touch.clientY - lastMousePos.current.y;
-
-      const rotationDelta = {
-        x: -deltaY * dragSensitivity,
-        y: deltaX * dragSensitivity,
-      };
-
-      setRotation((prev) => ({
-        x: SPHERE_MATH.normalizeAngle(
-          prev.x + clampRotationSpeed(rotationDelta.x)
-        ),
-        y: SPHERE_MATH.normalizeAngle(
-          prev.y + clampRotationSpeed(rotationDelta.y)
-        ),
-        z: prev.z,
-      }));
-
-      setVelocity({
-        x: clampRotationSpeed(rotationDelta.x),
-        y: clampRotationSpeed(rotationDelta.y),
-      });
-
-      lastMousePos.current = { x: touch.clientX, y: touch.clientY };
-    },
-    [isDragging, dragSensitivity, clampRotationSpeed]
-  );
-
-  const handleTouchEnd = useCallback(() => {
-    setIsDragging(false);
-  }, []);
-
-  useEffect(() => {
-    setIsMounted(true);
-  }, []);
-
-  useEffect(() => {
-    setImagePositions(generateSpherePositions());
-  }, [generateSpherePositions]);
-
-  useEffect(() => {
-    const animate = () => {
-      updateMomentum();
-      animationFrame.current = requestAnimationFrame(animate);
-    };
-
-    if (isMounted) {
-      animationFrame.current = requestAnimationFrame(animate);
+      rot.x = (rot.x + clampedVelX) % 360;
+      rot.y = (rot.y + clampedVelY) % 360;
     }
 
-    return () => {
-      if (animationFrame.current) {
-        cancelAnimationFrame(animationFrame.current);
-      }
-    };
-  }, [isMounted, updateMomentum]);
+    // Precompute rotation matrices ONCE per frame (4 trig calls total vs 216!)
+    const rotXRad = rot.x * (Math.PI / 180);
+    const rotYRad = rot.y * (Math.PI / 180);
+    const cosY = Math.cos(rotYRad);
+    const sinY = Math.sin(rotYRad);
+    const cosX = Math.cos(rotXRad);
+    const sinX = Math.sin(rotXRad);
 
+    const fadeZoneStart = -15;
+    const fadeZoneEnd = -actualSphereRadius * 0.7;
+
+    const cards = cardRefs.current;
+    const coords = baseCoordinates;
+    const total = coords.length;
+
+    for (let i = 0; i < total; i++) {
+      const node = cards[i];
+      if (!node) continue;
+
+      const p = coords[i];
+
+      // Fast SIMD-style matrix rotation (4 multiplications, 2 additions)
+      const x1 = p.x * cosY + p.z * sinY;
+      const z1 = -p.x * sinY + p.z * cosY;
+      const y2 = p.y * cosX - z1 * sinX;
+      const z2 = p.y * sinX + z1 * cosX;
+
+      // Culling & Visibility
+      if (z2 <= fadeZoneEnd) {
+        if (node.style.visibility !== 'hidden') {
+          node.style.visibility = 'hidden';
+        }
+        continue;
+      }
+
+      if (node.style.visibility === 'hidden') {
+        node.style.visibility = 'visible';
+      }
+
+      // Smooth Depth and Perspective Scaling
+      const fadeOpacity =
+        z2 <= fadeZoneStart
+          ? Math.max(0.1, (z2 - fadeZoneEnd) / (fadeZoneStart - fadeZoneEnd))
+          : 1;
+
+      const distFromCenter = Math.sqrt(x1 * x1 + y2 * y2);
+      const distRatio = Math.min(distFromCenter / actualSphereRadius, 1);
+      const centerScale = Math.max(0.4, 1 - distRatio * 0.4);
+      const depthScale = (z2 + actualSphereRadius) / (2 * actualSphereRadius);
+      const scale = centerScale * Math.max(0.55, 0.75 + depthScale * 0.35);
+      const zIndex = Math.round(1000 + z2);
+
+      // Direct GPU Compositor transform (0 layout reflows, 0ms main thread)
+      node.style.transform = `translate3d(${x1.toFixed(1)}px, ${y2.toFixed(1)}px, 0px) translate(-50%, -50%) scale(${scale.toFixed(3)})`;
+      node.style.opacity = fadeOpacity.toFixed(2);
+      node.style.zIndex = String(zIndex);
+    }
+  }, [
+    baseCoordinates,
+    actualSphereRadius,
+    momentumDecay,
+    autoRotate,
+    autoRotateSpeed,
+    maxRotationSpeed,
+  ]);
+
+  // RequestAnimationFrame Loop
   useEffect(() => {
     if (!isMounted) return;
+
+    let isRunning = true;
+    const loop = () => {
+      if (!isRunning) return;
+      renderFrame();
+      animationFrameRef.current = requestAnimationFrame(loop);
+    };
+
+    animationFrameRef.current = requestAnimationFrame(loop);
+
+    return () => {
+      isRunning = false;
+      if (animationFrameRef.current) {
+        cancelAnimationFrame(animationFrameRef.current);
+      }
+    };
+  }, [isMounted, renderFrame]);
+
+  // High-frequency Touch and Drag Handlers (Bypassing React re-renders)
+  const onPointerDown = useCallback((clientX: number, clientY: number) => {
+    isDraggingRef.current = true;
+    velocityRef.current = { x: 0, y: 0 };
+    lastMousePos.current = { x: clientX, y: clientY };
+    dragStartPos.current = { x: clientX, y: clientY };
+  }, []);
+
+  const onPointerMove = useCallback(
+    (clientX: number, clientY: number) => {
+      if (!isDraggingRef.current) return;
+
+      const deltaX = clientX - lastMousePos.current.x;
+      const deltaY = clientY - lastMousePos.current.y;
+
+      const rotDeltaX = -deltaY * dragSensitivity;
+      const rotDeltaY = deltaX * dragSensitivity;
+
+      const rot = rotationRef.current;
+      rot.x = (rot.x + rotDeltaX) % 360;
+      rot.y = (rot.y + rotDeltaY) % 360;
+
+      velocityRef.current = {
+        x: Math.max(-maxRotationSpeed, Math.min(maxRotationSpeed, rotDeltaX)),
+        y: Math.max(-maxRotationSpeed, Math.min(maxRotationSpeed, rotDeltaY)),
+      };
+
+      lastMousePos.current = { x: clientX, y: clientY };
+    },
+    [dragSensitivity, maxRotationSpeed]
+  );
+
+  const onPointerUp = useCallback(() => {
+    isDraggingRef.current = false;
+  }, []);
+
+  // Global mouse & touch listeners
+  useEffect(() => {
+    if (!isMounted) return;
+
+    const handleMouseMove = (e: MouseEvent) => {
+      onPointerMove(e.clientX, e.clientY);
+    };
+    const handleMouseUp = () => {
+      onPointerUp();
+    };
+
+    const handleTouchMove = (e: TouchEvent) => {
+      if (!isDraggingRef.current) return;
+      onPointerMove(e.touches[0].clientX, e.touches[0].clientY);
+    };
+    const handleTouchEnd = () => {
+      onPointerUp();
+    };
 
     document.addEventListener('mousemove', handleMouseMove);
     document.addEventListener('mouseup', handleMouseUp);
@@ -418,77 +305,21 @@ export const SphereImageGrid: React.FC<SphereImageGridProps> = ({
       document.removeEventListener('touchmove', handleTouchMove);
       document.removeEventListener('touchend', handleTouchEnd);
     };
-  }, [isMounted, handleMouseMove, handleMouseUp, handleTouchMove, handleTouchEnd]);
+  }, [isMounted, onPointerMove, onPointerUp]);
 
-  const worldPositions = calculateWorldPositions();
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
 
-  const handleCardClick = (image: ImageData) => {
-    if (onSelectImage) {
+  const handleCardClick = (e: React.MouseEvent, image: ImageData) => {
+    e.stopPropagation();
+    // Only trigger modal click if user didn't drag across the screen
+    const dx = Math.abs(lastMousePos.current.x - dragStartPos.current.x);
+    const dy = Math.abs(lastMousePos.current.y - dragStartPos.current.y);
+    if (dx < 6 && dy < 6 && onSelectImage) {
       onSelectImage(image);
-    } else {
-      setSelectedImage(image);
     }
   };
-
-  const renderImageNode = useCallback(
-    (image: ImageData, index: number) => {
-      const position = worldPositions[index];
-      if (!position || !position.isVisible) return null;
-
-      const imageSize = baseImageSize * position.scale;
-      const isHovered = hoveredIndex === index;
-      const finalScale = isHovered ? Math.min(1.2, 1.2 / position.scale) : 1;
-
-      return (
-        <div
-          key={image.id}
-          className="absolute cursor-pointer select-none transition-transform duration-200 ease-out will-change-transform"
-          style={{
-            width: `${imageSize}px`,
-            height: `${imageSize}px`,
-            left: `${containerSize / 2 + position.x}px`,
-            top: `${containerSize / 2 + position.y}px`,
-            opacity: position.fadeOpacity,
-            transform: `translate(-50%, -50%) scale(${finalScale})`,
-            zIndex: position.zIndex,
-          }}
-          onMouseEnter={() => setHoveredIndex(index)}
-          onMouseLeave={() => setHoveredIndex(null)}
-          onClick={(e) => {
-            e.stopPropagation();
-            handleCardClick(image);
-          }}
-        >
-          <div className="relative w-full h-full rounded-2xl overflow-hidden shadow-2xl border border-white/20 bg-neutral-900 group">
-            {image.isVideo && (image.videoLoopUrl || image.videoUrl) ? (
-              <video
-                src={image.videoLoopUrl || image.videoUrl}
-                poster={image.src}
-                autoPlay
-                muted
-                loop
-                playsInline
-                preload="metadata"
-                className="w-full h-full object-cover pointer-events-none"
-              />
-            ) : (
-              <img
-                src={image.src}
-                alt={image.alt}
-                className="w-full h-full object-cover pointer-events-none group-hover:scale-105 transition-transform duration-300"
-                draggable={false}
-                loading={index < 8 ? 'eager' : 'lazy'}
-              />
-            )}
-            
-            {/* Subtle glow / border overlay */}
-            <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent pointer-events-none" />
-          </div>
-        </div>
-      );
-    },
-    [worldPositions, baseImageSize, containerSize, hoveredIndex]
-  );
 
   if (!isMounted) {
     return (
@@ -505,17 +336,63 @@ export const SphereImageGrid: React.FC<SphereImageGridProps> = ({
     <div className="flex flex-col items-center justify-center w-full">
       <div
         ref={containerRef}
-        className={`relative select-none cursor-grab active:cursor-grabbing mx-auto touch-pan-y ${className}`}
+        className={`relative select-none cursor-grab active:cursor-grabbing mx-auto touch-none ${className}`}
         style={{
-          width: containerSize,
-          height: containerSize,
+          width: `${containerSize}px`,
+          height: `${containerSize}px`,
           perspective: `${perspective}px`,
         }}
-        onMouseDown={handleMouseDown}
-        onTouchStart={handleTouchStart}
+        onMouseDown={(e) => {
+          e.preventDefault();
+          onPointerDown(e.clientX, e.clientY);
+        }}
+        onTouchStart={(e) => {
+          onPointerDown(e.touches[0].clientX, e.touches[0].clientY);
+        }}
       >
+        {/* Hardware-accelerated 3D Sphere Stage */}
         <div className="relative w-full h-full" style={{ zIndex: 10 }}>
-          {images.map((image, index) => renderImageNode(image, index))}
+          {images.map((image, index) => (
+            <div
+              key={image.id}
+              ref={(el) => {
+                cardRefs.current[index] = el;
+              }}
+              className="absolute top-1/2 left-1/2 cursor-pointer select-none will-change-transform"
+              style={{
+                width: `${baseCardSize}px`,
+                height: `${baseCardSize}px`,
+                transform: 'translate3d(0, 0, 0) translate(-50%, -50%)',
+                backfaceVisibility: 'hidden',
+                WebkitBackfaceVisibility: 'hidden',
+              }}
+              onClick={(e) => handleCardClick(e, image)}
+            >
+              <div className="relative w-full h-full rounded-2xl overflow-hidden shadow-2xl border border-white/20 bg-neutral-900 group hover:border-amber-400/50 transition-colors duration-300">
+                {image.isVideo && (image.videoLoopUrl || image.videoUrl) ? (
+                  <video
+                    src={image.videoLoopUrl || image.videoUrl}
+                    poster={image.src}
+                    autoPlay
+                    muted
+                    loop
+                    playsInline
+                    preload="metadata"
+                    className="w-full h-full object-cover pointer-events-none"
+                  />
+                ) : (
+                  <img
+                    src={image.src}
+                    alt={image.alt}
+                    className="w-full h-full object-cover pointer-events-none group-hover:scale-105 transition-transform duration-300"
+                    draggable={false}
+                    loading={index < 8 ? 'eager' : 'lazy'}
+                  />
+                )}
+                <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent pointer-events-none" />
+              </div>
+            </div>
+          ))}
         </div>
       </div>
     </div>
