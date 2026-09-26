@@ -57,6 +57,7 @@ export const SphereImageGrid: React.FC<SphereImageGridProps> = ({
   // References for Zero-Re-render Animation Loop
   const containerRef = useRef<HTMLDivElement>(null);
   const cardRefs = useRef<(HTMLDivElement | null)[]>([]);
+  const videoRefs = useRef<(HTMLVideoElement | null)[]>([]);
   const rotationRef = useRef({ x: 12, y: 25 });
   const velocityRef = useRef({ x: 0, y: 0 });
   const isDraggingRef = useRef(false);
@@ -92,7 +93,6 @@ export const SphereImageGrid: React.FC<SphereImageGridProps> = ({
   const baseCardSize = containerSize * baseImageScale;
 
   // 1. Precalculate 3D Cartesian coordinates ONCE per layout change
-  // (Zero trigonometry during animation loop!)
   const baseCoordinates = useMemo<Position3D[]>(() => {
     const count = images.length;
     if (count === 0) return [];
@@ -131,7 +131,7 @@ export const SphereImageGrid: React.FC<SphereImageGridProps> = ({
     return coords;
   }, [images.length, actualSphereRadius]);
 
-  // 2. High-Performance Animation Frame (Direct GPU transform updates, 0ms React re-renders)
+  // 2. High-Performance Animation Frame with Mobile Video Decoder Throttling
   const renderFrame = useCallback(() => {
     const rot = rotationRef.current;
     const vel = velocityRef.current;
@@ -152,7 +152,7 @@ export const SphereImageGrid: React.FC<SphereImageGridProps> = ({
       rot.y = (rot.y + clampedVelY) % 360;
     }
 
-    // Precompute rotation matrices ONCE per frame (4 trig calls total vs 216!)
+    // Precompute rotation matrices ONCE per frame
     const rotXRad = rot.x * (Math.PI / 180);
     const rotYRad = rot.y * (Math.PI / 180);
     const cosY = Math.cos(rotYRad);
@@ -164,6 +164,7 @@ export const SphereImageGrid: React.FC<SphereImageGridProps> = ({
     const fadeZoneEnd = -actualSphereRadius * 0.7;
 
     const cards = cardRefs.current;
+    const videos = videoRefs.current;
     const coords = baseCoordinates;
     const total = coords.length;
 
@@ -184,11 +185,31 @@ export const SphereImageGrid: React.FC<SphereImageGridProps> = ({
         if (node.style.visibility !== 'hidden') {
           node.style.visibility = 'hidden';
         }
+        // Pause video if on back of sphere to prevent iOS decoder limit exhaustion
+        const video = videos[i];
+        if (video && !video.paused) {
+          video.pause();
+        }
         continue;
       }
 
       if (node.style.visibility === 'hidden') {
         node.style.visibility = 'visible';
+      }
+
+      // Front-hemisphere video decoder management for mobile Safari
+      const video = videos[i];
+      if (video) {
+        if (z2 > -actualSphereRadius * 0.2) {
+          if (video.paused) {
+            video.muted = true;
+            video.play().catch(() => {});
+          }
+        } else {
+          if (!video.paused) {
+            video.pause();
+          }
+        }
       }
 
       // Smooth Depth and Perspective Scaling
@@ -204,7 +225,7 @@ export const SphereImageGrid: React.FC<SphereImageGridProps> = ({
       const scale = centerScale * Math.max(0.55, 0.75 + depthScale * 0.35);
       const zIndex = Math.round(1000 + z2);
 
-      // Direct GPU Compositor transform (0 layout reflows, 0ms main thread)
+      // Direct GPU Compositor transform
       node.style.transform = `translate3d(${x1.toFixed(1)}px, ${y2.toFixed(1)}px, 0px) translate(-50%, -50%) scale(${scale.toFixed(3)})`;
       node.style.opacity = fadeOpacity.toFixed(2);
       node.style.zIndex = String(zIndex);
@@ -239,12 +260,48 @@ export const SphereImageGrid: React.FC<SphereImageGridProps> = ({
     };
   }, [isMounted, renderFrame]);
 
-  // High-frequency Touch and Drag Handlers (Bypassing React re-renders)
+  // Mobile Autoplay Interaction Unlocker
+  // When user touches or scrolls on mobile, immediately unlock video playback in WebKit
+  useEffect(() => {
+    if (!isMounted) return;
+
+    const unlockMobileVideos = () => {
+      videoRefs.current.forEach((video) => {
+        if (video) {
+          video.muted = true;
+          video.defaultMuted = true;
+          if (video.paused) {
+            video.play().catch(() => {});
+          }
+        }
+      });
+    };
+
+    window.addEventListener('touchstart', unlockMobileVideos, { passive: true });
+    window.addEventListener('pointerdown', unlockMobileVideos, { passive: true });
+    window.addEventListener('scroll', unlockMobileVideos, { once: true, passive: true });
+
+    return () => {
+      window.removeEventListener('touchstart', unlockMobileVideos);
+      window.removeEventListener('pointerdown', unlockMobileVideos);
+      window.removeEventListener('scroll', unlockMobileVideos);
+    };
+  }, [isMounted]);
+
+  // High-frequency Touch and Drag Handlers
   const onPointerDown = useCallback((clientX: number, clientY: number) => {
     isDraggingRef.current = true;
     velocityRef.current = { x: 0, y: 0 };
     lastMousePos.current = { x: clientX, y: clientY };
     dragStartPos.current = { x: clientX, y: clientY };
+
+    // Trigger video playback on touch start for iOS
+    videoRefs.current.forEach((video) => {
+      if (video && video.paused) {
+        video.muted = true;
+        video.play().catch(() => {});
+      }
+    });
   }, []);
 
   const onPointerMove = useCallback(
@@ -313,7 +370,6 @@ export const SphereImageGrid: React.FC<SphereImageGridProps> = ({
 
   const handleCardClick = (e: React.MouseEvent, image: ImageData) => {
     e.stopPropagation();
-    // Only trigger modal click if user didn't drag across the screen
     const dx = Math.abs(lastMousePos.current.x - dragStartPos.current.x);
     const dy = Math.abs(lastMousePos.current.y - dragStartPos.current.y);
     if (dx < 6 && dy < 6 && onSelectImage) {
@@ -371,14 +427,35 @@ export const SphereImageGrid: React.FC<SphereImageGridProps> = ({
               <div className="relative w-full h-full rounded-2xl overflow-hidden shadow-2xl border border-white/20 bg-neutral-900 group hover:border-amber-400/50 transition-colors duration-300">
                 {image.isVideo && (image.videoLoopUrl || image.videoUrl) ? (
                   <video
+                    ref={(el) => {
+                      videoRefs.current[index] = el;
+                      if (el) {
+                        el.muted = true;
+                        el.defaultMuted = true;
+                        el.playsInline = true;
+                        el.setAttribute('playsinline', '');
+                        el.setAttribute('webkit-playsinline', '');
+                      }
+                    }}
                     src={image.videoLoopUrl || image.videoUrl}
                     poster={image.src}
                     autoPlay
                     muted
                     loop
                     playsInline
-                    preload="metadata"
+                    preload="auto"
                     className="w-full h-full object-cover pointer-events-none"
+                    onLoadedData={(e) => {
+                      const v = e.currentTarget;
+                      v.muted = true;
+                      v.defaultMuted = true;
+                      v.play().catch(() => {});
+                    }}
+                    onCanPlay={(e) => {
+                      const v = e.currentTarget;
+                      v.muted = true;
+                      v.play().catch(() => {});
+                    }}
                   />
                 ) : (
                   <img
